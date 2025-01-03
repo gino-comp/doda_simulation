@@ -24,3 +24,5 @@ make
 ```bash
 make run
 ```
+Note) certain Verilator libraries are required to run the simulation successfully. These include:
+libverilated.a and libverilated_vcd_c.a
