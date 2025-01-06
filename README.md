@@ -26,3 +26,30 @@ make run
 ```
 Note) certain Verilator libraries are required to run the simulation successfully. These include:
 libverilated.a and libverilated_vcd_c.a
+
+### How to build required Verilator libraries
+If you encounter missing `libverilated.a` errors, follow these steps to manually compile it:
+
+1. Clone the Verilator source code:
+   ```bash
+   git clone https://github.com/verilator/verilator.git
+   ```
+2. Checkout to version v5.020:
+   ```bash
+   cd verilator
+   git checkout v5.020
+   ```
+3. Compile the required files:
+   ```bash
+   cd include
+   g++ -c verilated.cpp verilated_dpi.cpp
+   mkdir -p ../lib64
+   ar rcs ../lib64/libverilated.a verilated.o verilated_dpi.o
+   g++ -c verilated_vcd_c.cpp
+   ar rcs ../lib64/libverilated_vcd_c.a verilated_vcd_c.o
+   ```
+5. Install the compiled libraries:
+   ```bash
+   sudo cp ../lib64/libverilated.a /usr/share/verilator/lib64/
+   sudo cp ../lib64/libverilated_vcd_c.a /usr/share/verilator/lib64/
+   ```
