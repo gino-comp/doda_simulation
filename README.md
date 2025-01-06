@@ -42,9 +42,9 @@ If you encounter missing `libverilated.a` errors, follow these steps to manually
 3. Compile the required files:
    ```bash
    cd include
-   g++ -c verilated.cpp verilated_dpi.cpp
+   g++ -c verilated.cpp verilated_dpi.cpp verilated_threads.cpp
    mkdir -p ../lib64
-   ar rcs ../lib64/libverilated.a verilated.o verilated_dpi.o
+   ar rcs ../lib64/libverilated.a verilated.o verilated_dpi.o verilated_threads.o
    g++ -c verilated_vcd_c.cpp
    ar rcs ../lib64/libverilated_vcd_c.a verilated_vcd_c.o
    ```
