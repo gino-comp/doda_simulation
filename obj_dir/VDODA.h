@@ -10,16 +10,16 @@
 
 #include "verilated.h"
 
-class VDODA_PS28GA;
-class VDODA_PSgb1q;
-class VDODA_PSNgB4;
+class VDODA_PSX2uK;
+class VDODA_PSlY6n;
+class VDODA_PSLkPT;
 
 
 // This class is the main interface to the Verilated model
 class alignas(VL_CACHE_LINE_BYTES) VDODA VL_NOT_FINAL : public VerilatedModel {
   private:
     // Symbol table holding complete model state (owned by this class)
-    VDODA_PS28GA* const vlSymsp;
+    VDODA_PSX2uK* const vlSymsp;
 
   public:
 
@@ -36,58 +36,34 @@ class alignas(VL_CACHE_LINE_BYTES) VDODA VL_NOT_FINAL : public VerilatedModel {
     VL_IN8(&io_v_inst_prog_in_0_valid,0,0);
     VL_OUT8(&io_v_inst_prog_in_1_ready,0,0);
     VL_IN8(&io_v_inst_prog_in_1_valid,0,0);
-    VL_OUT8(&io_v_inst_prog_in_2_ready,0,0);
-    VL_IN8(&io_v_inst_prog_in_2_valid,0,0);
-    VL_OUT8(&io_v_inst_prog_in_3_ready,0,0);
-    VL_IN8(&io_v_inst_prog_in_3_valid,0,0);
     VL_IN8(&io_v_in_prog_read_done_0,0,0);
     VL_IN8(&io_v_in_prog_read_done_1,0,0);
-    VL_IN8(&io_v_in_prog_read_done_2,0,0);
-    VL_IN8(&io_v_in_prog_read_done_3,0,0);
     VL_OUT8(&io_v_t_axi_read_in_0_ready,0,0);
     VL_IN8(&io_v_t_axi_read_in_0_valid,0,0);
     VL_OUT8(&io_v_t_axi_read_in_1_ready,0,0);
     VL_IN8(&io_v_t_axi_read_in_1_valid,0,0);
-    VL_OUT8(&io_v_t_axi_read_in_2_ready,0,0);
-    VL_IN8(&io_v_t_axi_read_in_2_valid,0,0);
-    VL_OUT8(&io_v_t_axi_read_in_3_ready,0,0);
-    VL_IN8(&io_v_t_axi_read_in_3_valid,0,0);
     VL_IN8(&io_v_t_axi_write_out_0_ready,0,0);
     VL_OUT8(&io_v_t_axi_write_out_0_valid,0,0);
     VL_IN8(&io_v_t_axi_write_out_1_ready,0,0);
     VL_OUT8(&io_v_t_axi_write_out_1_valid,0,0);
-    VL_IN8(&io_v_t_axi_write_out_2_ready,0,0);
-    VL_OUT8(&io_v_t_axi_write_out_2_valid,0,0);
-    VL_IN8(&io_v_t_axi_write_out_3_ready,0,0);
-    VL_OUT8(&io_v_t_axi_write_out_3_valid,0,0);
     VL_IN8(&io_v_in_spm_read_done_0,0,0);
     VL_IN8(&io_v_in_spm_read_done_1,0,0);
-    VL_IN8(&io_v_in_spm_read_done_2,0,0);
-    VL_IN8(&io_v_in_spm_read_done_3,0,0);
     VL_INW(&io_v_inst_prog_in_0_bits,127,0,4);
     VL_INW(&io_v_inst_prog_in_1_bits,127,0,4);
-    VL_INW(&io_v_inst_prog_in_2_bits,127,0,4);
-    VL_INW(&io_v_inst_prog_in_3_bits,127,0,4);
     VL_IN(&io_v_t_axi_read_in_0_bits,31,0);
     VL_IN(&io_v_t_axi_read_in_1_bits,31,0);
-    VL_IN(&io_v_t_axi_read_in_2_bits,31,0);
-    VL_IN(&io_v_t_axi_read_in_3_bits,31,0);
     VL_OUT(&io_v_t_axi_write_out_0_bits,31,0);
     VL_OUT(&io_v_t_axi_write_out_1_bits,31,0);
-    VL_OUT(&io_v_t_axi_write_out_2_bits,31,0);
-    VL_OUT(&io_v_t_axi_write_out_3_bits,31,0);
 
     // CELLS
     // Public to allow access to /* verilator public */ items.
     // Otherwise the application code can consider these internals.
-    VDODA_PSNgB4* const PSeTpQ;
-    VDODA_PSNgB4* const PS2HsC;
-    VDODA_PSNgB4* const PSliDY;
-    VDODA_PSNgB4* const PSdYCu;
+    VDODA_PSLkPT* const PSuiJq;
+    VDODA_PSLkPT* const PS014Q;
 
     // Root instance pointer to allow access to model internals,
     // including inlined /* verilator public_flat_* */ items.
-    VDODA_PSgb1q* const rootp;
+    VDODA_PSlY6n* const rootp;
 
     // CONSTRUCTORS
     /// Construct the model; called by application code
