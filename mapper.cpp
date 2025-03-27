@@ -48,7 +48,8 @@ std::vector<PE_OP> Mapper::parsed() {
         #endif
 
 
-        assert(op.idx >= 0 && op.idx < g.inst_tab_size);
+        //assert(op.idx >= 0 && op.idx < g.inst_tab_size);
+        assert(op.idx >= 0 && op.idx < g.num_cluster * g.num_pe_per_cluster);
         ops[vec_idx++] = op;
     }
 
@@ -98,7 +99,11 @@ std::vector<std::string> Mapper::split(const std::string& str, char delimiter) {
 }
 
 std::string Mapper::toBinStr(int len, long dec) {
-    std::string bin = std::bitset<64>(dec).to_string();
+    std::string bin = "";
+    for (int i = 0; i < len; i++) {
+        bin = ((dec & 1) ? '1' : '0') + bin;
+        dec >>= 1;
+    }
     return bin.substr(bin.size() - len);
 }
 

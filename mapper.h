@@ -45,8 +45,8 @@ public:
 
     // DON'T CHANGE THESE DEFAULT VALUES. THEY ARE MATCHED WITH THE RTL DESIGN.
     General_Params()
-        : prog_mem_width(128), data_width(32), num_pe_per_cluster(32), num_cluster(2),
-            opcode_width(4), inst_tab_size(256),
+        : prog_mem_width(256), data_width(32), num_pe_per_cluster(128), num_cluster(8),
+            opcode_width(4), inst_tab_size(512),
             data_mem_size_byte(1024)
     {
         num_data_mem_entries = data_mem_size_byte * 8 / data_width;
