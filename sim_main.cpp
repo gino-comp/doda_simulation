@@ -252,14 +252,17 @@ int main() {
     int cycle = 0;
     int cycle_limit = 1000;
     bool is_done_well = false;
+    int prev_status = 0;
     while (!is_done_well && cycle < cycle_limit) {
         doda->clock = 1;
         doda->eval();
         doda->clock = 0;
         doda->eval();
+        prev_status = doda->io_status;
+
         if (doda->io_status == 5) {
             is_done_well = true;
-        } else if (doda->io_status == 4) {
+        } else if (prev_status != 4 && doda->io_status == 4) {
             std::cout << "SIM_MAIN) STATUS: BEING RECONFIGURED" << std::endl;
         }
         cycle++;
