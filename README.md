@@ -18,6 +18,8 @@ With DODA, the limits of conventional architecture no longer constrain you. Expl
 ## How to Compile and Run
 ### Compilation:
 ```bash
+# First time setup: Build Docker image
+make docker-build
 make
 ```
 ### Execution
