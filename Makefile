@@ -61,3 +61,25 @@ clean:
 	rm -f $(OBJECTS) $(TARGET)
 
 .PHONY: all clean run docker-build
+
+# Compiler integration in progress
+
+# Simple compiler test
+test_compiler: test_compiler.cpp $(DODA_COMPILER_LIB)
+	$(DOCKER_RUN) -c "g++ -std=c++17 -o test_compiler \
+		-Ilib \
+		test_compiler.cpp \
+		-L/workspace/lib \
+		-Wl,-rpath,/workspace/lib \
+		-ldoda_compiler \
+		-lpthread"
+
+# Run the test INSIDE the Docker container where LLVM is available
+run_test: test_compiler
+	$(DOCKER_RUN) -c "LD_LIBRARY_PATH=/workspace/lib ./test_compiler"
+
+# Clean test files  
+clean_test:
+	rm -f test_compiler
+
+.PHONY: test_compiler run_test clean_test
