@@ -9,19 +9,21 @@ DOCKER_RUN = $(CONTAINER_ENGINE) run --rm \
 	$(DOCKER_IMAGE) \
 	bash
 
-# Rest of variables remain the same
 CXX = g++
 CXXFLAGS = -std=c++14 -Ilib -I$(shell verilator --getenv VERILATOR_ROOT)/include -I$(shell verilator --getenv VERILATOR_ROOT)/include/vltstd -DVL_PROTECTED -fPIC
 LDFLAGS = /usr/share/verilator/lib64/libverilated.a /usr/share/verilator/lib64/libverilated_vcd_c.a -lpthread
 SOURCES = sim_main.cpp mapper.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = doda_sim
+# Compiler and submodule initialization
+COMPILER = compiler
+INIT_SUBMODULE = init_submodule
 
 # Specify the path to the encrypted shared library
 DODA_LIB = lib/DODA.so
 
 # Build target using docker
-all: $(TARGET)
+all: $(INIT_SUBMODULE) $(COMPILER) $(TARGET)
 
 run: $(TARGET)
 	./$(TARGET)
@@ -53,11 +55,23 @@ $(DODA_LIB):
 	@echo "Check that the .so file exists in the lib/ directory."
 	@exit 1
 
+
 # Also build the Docker image if needed
 docker-build:
 	$(CONTAINER_ENGINE) build -t $(DOCKER_IMAGE) ./docker
 
-clean:
-	rm -f $(OBJECTS) $(TARGET)
 
-.PHONY: all clean run docker-build
+########################################################################################
+# Building the compiler
+COMPILER_DIR = doda_compiler
+
+$(INIT_SUBMODULE):
+	git submodule update --init --recursive
+
+$(COMPILER): $(COMPILER_DIR)/Makefile
+	cd $(COMPILER_DIR) && make
+
+clean:
+	rm -rf $(OBJECTS) $(TARGET) $(COMPILER_DIR)
+
+.PHONY: all clean run docker-build init_submodule compiler
