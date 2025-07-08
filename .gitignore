@@ -1,3 +1,5 @@
 *.o
 *.d
 doda_sim
+example/obj
+example/app

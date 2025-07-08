@@ -23,7 +23,7 @@ INIT_SUBMODULE = init_submodule
 DODA_LIB = lib/DODA.so
 
 # Build target using docker
-all: $(INIT_SUBMODULE) $(COMPILER) $(TARGET)
+all: $(COMPILER) $(TARGET)
 
 run: $(TARGET)
 	./$(TARGET)
@@ -66,9 +66,9 @@ docker-build:
 COMPILER_DIR = doda_compiler
 
 $(INIT_SUBMODULE):
-	git submodule update --init --recursive
+	git submodule update --init --remote
 
-$(COMPILER): $(COMPILER_DIR)/Makefile
+$(COMPILER): $(INIT_SUBMODULE) $(COMPILER_DIR)/Makefile
 	cd $(COMPILER_DIR) && make
 
 clean:
