@@ -1,36 +1,35 @@
-# Docker configuration
+# Root Makefile for DODA Simulation
+# Usage: make simulate APP_SRC=your_file.cpp
+
+# === Configuration ===
 DOCKER_IMAGE := encrypted-verilator:latest
 CONTAINER_ENGINE := $(shell which podman >/dev/null 2>&1 && echo "podman" || echo "docker")
+EXTRA_INCLUDES ?=
+EXTRA_MOUNT ?=
 
-# Docker run command template
+# Docker run command
 DOCKER_RUN = $(CONTAINER_ENGINE) run --rm \
 	-v $(PWD):/workspace \
+	$(EXTRA_MOUNT) \
 	-w /workspace \
 	$(DOCKER_IMAGE) \
-	bash
+	bash -c
 
-CXX = g++
-CXXFLAGS = -std=c++14 -Ilib -I$(shell verilator --getenv VERILATOR_ROOT)/include -I$(shell verilator --getenv VERILATOR_ROOT)/include/vltstd -DVL_PROTECTED -fPIC
-LDFLAGS = /usr/share/verilator/lib64/libverilated.a /usr/share/verilator/lib64/libverilated_vcd_c.a -lpthread
+# Library paths
+DODA_LIB = lib/DODA.so
+
+# === Legacy simulator build (for backward compatibility) ===
 SOURCES = sim_main.cpp mapper.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = doda_sim
-# Compiler and submodule initialization
-COMPILER = compiler
-INIT_SUBMODULE = init_submodule
 
-# Specify the path to the encrypted shared library
-DODA_LIB = lib/DODA.so
-
-# Build target using docker
 all: $(COMPILER) $(TARGET)
 
 run: $(TARGET)
 	./$(TARGET)
 
-# Build the target executable using Docker
 $(TARGET): $(OBJECTS) $(DODA_LIB)
-	$(DOCKER_RUN) -c "g++ -std=c++14 -fPIC -o $(TARGET) \
+	$(DOCKER_RUN) "g++ -std=c++14 -fPIC -o $(TARGET) \
 		-Ilib \
 		-I/usr/local/include \
 		-I/usr/local/share/verilator/include \
@@ -40,30 +39,40 @@ $(TARGET): $(OBJECTS) $(DODA_LIB)
 		-lverilated_vcd_c \
 		-lpthread"
 
-# Compile object files using Docker
 %.o: %.cpp
-	$(DOCKER_RUN) -c "g++ -std=c++14 -fPIC -c \
+	$(DOCKER_RUN) "g++ -std=c++14 -fPIC -c \
 		-Ilib \
 		-I/usr/local/include \
 		-I/usr/local/share/verilator/include \
 		$< -o $@"
 
-# Rule to ensure the doda.so library exists
-$(DODA_LIB):
-	@echo "Error: $(DODA_LIB) not found!"
-	@echo "Make sure you've built the encrypted Verilator library first."
-	@echo "Check that the .so file exists in the lib/ directory."
-	@exit 1
+# === Parameterized simulation rule (for any input file) ===
+build_sim: check_app_src $(DODA_LIB)
+	$(eval DEST_DIR ?= $(dir $(APP_SRC)))
+	@echo "→ Building simulation executable for $(APP_SRC)..."
+	@echo "→ Output directory: $(DEST_DIR)"
+	@mkdir -p $(DEST_DIR)
+	$(DOCKER_RUN) "g++ -std=c++14 -fPIC -o /workspace/$(DEST_DIR)sim_app \
+		$(EXTRA_INCLUDES) \
+		-DDODA_SIMULATION_MODE \
+		-Iinclude \
+		-Ilib \
+		-I/usr/local/include \
+		-I/usr/local/share/verilator/include \
+		/workspace/$(APP_SRC) /workspace/src/*.cpp \
+		-L/workspace/lib \
+		-L/usr/local/lib \
+		-l:DODA.so \
+		-lverilated \
+		-lverilated_vcd_c \
+		-lpthread \
+		-Wl,-rpath,../lib"
+	@echo "✓ Simulation executable built: $(DEST_DIR)sim_app"
 
-
-# Also build the Docker image if needed
-docker-build:
-	$(CONTAINER_ENGINE) build -t $(DOCKER_IMAGE) ./docker
-
-
-########################################################################################
-# Building the compiler
+# === Compiler setup ===
 COMPILER_DIR = doda_compiler
+COMPILER = compiler
+INIT_SUBMODULE = init_submodule
 
 $(INIT_SUBMODULE):
 	git submodule update --init --remote
@@ -71,7 +80,21 @@ $(INIT_SUBMODULE):
 $(COMPILER): $(INIT_SUBMODULE) $(COMPILER_DIR)/Makefile
 	cd $(COMPILER_DIR) && make
 
+# === Utilities ===
+$(DODA_LIB):
+	@echo "Error: $(DODA_LIB) not found!"
+	@echo "Make sure you've built the encrypted Verilator library first."
+	@echo "Check that the .so file exists in the lib/ directory."
+	@exit 1
+
+docker-build:
+	$(CONTAINER_ENGINE) build -t $(DOCKER_IMAGE) ./docker
+
 clean:
 	rm -rf $(OBJECTS) $(TARGET) $(COMPILER_DIR)
 
-.PHONY: all clean run docker-build init_submodule compiler
+# === Validation rules ===
+check_app_src:
+	@if [ -z "$(APP_SRC)" ]; then echo "Error: Please specify APP_SRC=your_file.cpp"; exit 1; fi
+
+.PHONY: all run simulate docker-build clean check_app_src $(COMPILER) $(INIT_SUBMODULE)

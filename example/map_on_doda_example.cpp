@@ -1,6 +1,7 @@
 #include <doda_runtime.hpp>
 #include <iostream>
 #include <vector>
+//#include "include/doda_simulator.hpp"
 
 int main() {
     std::vector<uint32_t> input{1, 0, 1, 0, 2, 0};
