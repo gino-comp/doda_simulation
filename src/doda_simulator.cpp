@@ -67,7 +67,7 @@ void DODASimulator::programInstructions(const std::vector<std::vector<std::strin
     General_Params g;
     
     // Program instructions for each cluster
-    for (int inst_tab_idx = 0; inst_tab_idx < g.inst_tab_size; inst_tab_idx++) {
+    for (int inst_tab_idx = 0; inst_tab_idx < std::min(g.inst_tab_size, static_cast<int>(binary_instructions[0].size())); inst_tab_idx++) {
         posedge();
         
         // Enable programming for all clusters
@@ -75,7 +75,7 @@ void DODASimulator::programInstructions(const std::vector<std::vector<std::strin
         doda_->io_v_inst_prog_in_1_valid = 1;
         doda_->io_v_inst_prog_in_2_valid = 1;
         doda_->io_v_inst_prog_in_3_valid = 1;
-        
+
         // Program each cluster
         for (int cluster = 0; cluster < 4; cluster++) {
             const std::string& bitstr = binary_instructions[cluster][inst_tab_idx];
@@ -110,6 +110,11 @@ void DODASimulator::loadMemoryData(const std::vector<std::vector<int>>& memory_d
     
     // Load data into scratchpad memories
     int cnt = 0;
+    int mem0_size = memory_data.size() > 0? static_cast<int>(memory_data[0].size()): 0;
+    int mem1_size = memory_data.size() > 1? static_cast<int>(memory_data[1].size()): 0;
+    int mem2_size = memory_data.size() > 2? static_cast<int>(memory_data[2].size()): 0;
+    int mem3_size = memory_data.size() > 3? static_cast<int>(memory_data[3].size()): 0;
+
     while (cnt < g.num_data_mem_entries && 
            doda_->io_v_t_axi_read_in_0_ready && 
            doda_->io_v_t_axi_read_in_1_ready && 
@@ -117,15 +122,14 @@ void DODASimulator::loadMemoryData(const std::vector<std::vector<int>>& memory_d
            doda_->io_v_t_axi_read_in_3_ready) {
         
         posedge();
-        
         doda_->io_v_t_axi_read_in_0_valid = 1;
-        doda_->io_v_t_axi_read_in_0_bits = memory_data[0][cnt];
+        doda_->io_v_t_axi_read_in_0_bits = cnt<mem0_size? memory_data[0][cnt]: 0;
         doda_->io_v_t_axi_read_in_1_valid = 1;
-        doda_->io_v_t_axi_read_in_1_bits = memory_data[1][cnt];
+        doda_->io_v_t_axi_read_in_1_bits = cnt<mem1_size? memory_data[1][cnt]: 0;
         doda_->io_v_t_axi_read_in_2_valid = 1;
-        doda_->io_v_t_axi_read_in_2_bits = memory_data[2][cnt];
+        doda_->io_v_t_axi_read_in_2_bits = cnt<mem2_size? memory_data[2][cnt]: 0;
         doda_->io_v_t_axi_read_in_3_valid = 1;
-        doda_->io_v_t_axi_read_in_3_bits = memory_data[3][cnt];
+        doda_->io_v_t_axi_read_in_3_bits = cnt<mem3_size? memory_data[3][cnt]: 0;
         
         doda_->eval();
         negedge();

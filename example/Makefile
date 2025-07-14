@@ -5,7 +5,7 @@ COMPILER_DIR = $(ROOT_DIR)/doda_compiler
 all: build
 
 $(COMPILER_DIR)/Makefile:
-	@echo "Compiler not set up. Please run 'make compiler_setup' first."
+	@echo "Compiler not set up. Please run 'make compiler' at the root directory to setup the compiler first."
 	@exit 1
 
 # processing the input cpp file to generate the DFGs
@@ -24,11 +24,6 @@ build: obj/liblambda.so
 # executable
 app: obj/liblambda.so
 
-# Visualize DFGs (optional)
-visualize: $(COMPILER_DIR)/Makefile
-	@echo "- Visualizing DFGs..."
-	cd ../doda_compiler && make visualize APP_SRC=example/map_on_doda_example.cpp	
-
 # Run the application
 run: app
 	@echo "- Running application..."
@@ -42,6 +37,6 @@ simulate: obj/liblambda.so
 	LD_LIBRARY_PATH=../lib:$$LD_LIBRARY_PATH ./sim_app
 
 clean:
-	rm -rf obj/ app
+	rm -rf obj/ app sim_app
 
 .PHONY: all process build run visualize simulate clean

@@ -1,3 +1,4 @@
 [submodule "doda_compiler"]
 	path = doda_compiler
 	url = https://github.com/gino-comp/doda_compiler.git
+	branch = main

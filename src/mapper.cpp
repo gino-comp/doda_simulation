@@ -219,7 +219,8 @@ std::set<std::pair<std::pair<int, int>, std::pair<int, int>>> Mapper::filter_dep
 
 std::string Mapper::binaryFormat(const PE_OP& pe_op) {
     int datawidth = g.data_width;
-    std::string s_pe_idx = toBinStr(log2Ceil(g.num_cluster) + g.src_pe_idx_width, pe_op.idx);
+    int this_pe_idx_width = log2Ceil(g.num_cluster) + g.src_idx_width;
+    std::string s_pe_idx = toBinStr(this_pe_idx_width, pe_op.idx);
     std::string s_i1_used = pe_op.i1_used ? "1" : "0";
     std::string s_i1_const_used = pe_op.i1_const_used ? "1" : "0";
     std::string s_i1_src_or_const = toBinStr(datawidth, pe_op.i1_src_or_const);
@@ -227,12 +228,14 @@ std::string Mapper::binaryFormat(const PE_OP& pe_op) {
     std::string s_i2_const_used = pe_op.i2_const_used ? "1" : "0";
     std::string s_i2_src_or_const = toBinStr(datawidth, pe_op.i2_src_or_const);
     std::string s_p_used = pe_op.p_used ? "1" : "0";
-    std::string s_p_src = toBinStr(g.src_idx_width, pe_op.p_src);
+    std::string s_p_src = toBinStr(g.src_idx_width, pe_op.p_src); // num cluster + log2Ceil(num pe per cluster)
+    std::cout << "DEBUG) s_p_src: " << s_p_src << "(len: " << g.src_idx_width << ")" << std::endl; // Debugging line
+    exit(0); // Debugging line
     std::string init_out_used = pe_op.init_out_used ? "1" : "0";
     std::string init_out = toBinStr(datawidth, pe_op.init_out);
     std::string s_opcode = toBinStr(g.opcode_width, static_cast<int>(pe_op.opcode));
     std::string s_dst_oh = pe_op.dst_oh;
-    std::string s_margin = toBinStr(g.prog_mem_width - (log2Ceil(g.num_cluster) + g.src_pe_idx_width + 3 * g.data_width + g.src_idx_width + g.opcode_width + g.num_cluster + 6), 0);
+    std::string s_margin = toBinStr(g.prog_mem_width - (this_pe_idx_width + 3 * g.data_width + g.src_idx_width + g.opcode_width + g.num_cluster + 6), 0);
 
     std::string ret = s_margin + s_dst_oh + s_opcode + init_out + init_out_used + s_p_src + s_p_used + s_i2_src_or_const + s_i2_const_used + s_i2_used + s_i1_src_or_const + s_i1_const_used + s_i1_used + s_pe_idx;
 

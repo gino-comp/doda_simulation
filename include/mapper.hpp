@@ -46,12 +46,12 @@ public:
     // DON'T CHANGE THESE DEFAULT VALUES. THEY ARE MATCHED WITH THE RTL DESIGN.
     General_Params()
         : prog_mem_width(128), data_width(32), num_pe_per_cluster(32), num_cluster(4),
-            opcode_width(4), inst_tab_size(256),
+            opcode_width(5), inst_tab_size(256),
             data_mem_size_byte(1024)
     {
         num_data_mem_entries = data_mem_size_byte * 8 / data_width;
         src_pe_idx_width = log2Ceil(num_pe_per_cluster);
-        src_cluster_idx_width = num_cluster; // As it is represented in OH format
+        src_cluster_idx_width = num_cluster; 
         src_idx_width = src_pe_idx_width + src_cluster_idx_width;
 
         assert((num_cluster & (num_cluster - 1)) == 0 && "num_cluster must be a power of 2");

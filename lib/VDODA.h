@@ -10,16 +10,16 @@
 
 #include "verilated.h"
 
-class VDODA_PSA4Ah;
-class VDODA_PSE3SI;
-class VDODA_PS6xmq;
+class VDODA_PSNISP;
+class VDODA_PSj71N;
+class VDODA_PSmeNu;
 
 
 // This class is the main interface to the Verilated model
 class alignas(VL_CACHE_LINE_BYTES) VDODA VL_NOT_FINAL : public VerilatedModel {
   private:
     // Symbol table holding complete model state (owned by this class)
-    VDODA_PSA4Ah* const vlSymsp;
+    VDODA_PSNISP* const vlSymsp;
 
   public:
 
@@ -80,14 +80,14 @@ class alignas(VL_CACHE_LINE_BYTES) VDODA VL_NOT_FINAL : public VerilatedModel {
     // CELLS
     // Public to allow access to /* verilator public */ items.
     // Otherwise the application code can consider these internals.
-    VDODA_PS6xmq* const PSzbns;
-    VDODA_PS6xmq* const PSNaid;
-    VDODA_PS6xmq* const PSN7Gx;
-    VDODA_PS6xmq* const PSxZY8;
+    VDODA_PSmeNu* const PSZAWP;
+    VDODA_PSmeNu* const PSpwWR;
+    VDODA_PSmeNu* const PSUJPB;
+    VDODA_PSmeNu* const PSQHUs;
 
     // Root instance pointer to allow access to model internals,
     // including inlined /* verilator public_flat_* */ items.
-    VDODA_PSE3SI* const rootp;
+    VDODA_PSj71N* const rootp;
 
     // CONSTRUCTORS
     /// Construct the model; called by application code

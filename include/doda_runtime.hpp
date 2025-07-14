@@ -18,6 +18,8 @@
 #include "doda_simulator.hpp"
 #endif
 
+//#define VERBOSE  // Uncomment to enable verbose output
+
 // The function pointer type for compiled lambdas
 typedef uint32_t (*lambda_t)(uint32_t);
 
@@ -118,8 +120,14 @@ inline lambda_t load_lambda(int lambda_index, RuntimeMetadata& metadata) {
     
     for (int cluster = 0; cluster < bitstream.size(); cluster++) {
         out << "#Cluster index: " << cluster << "\n";
+        //#ifdef VERBOSE
+        //std::cout << "#Cluster index: " << cluster << "\n";
+        //#endif
         for (int pe = 0; pe < bitstream[cluster].size(); pe++) {
             out << bitstream[cluster][pe] << "\n";
+            //#ifdef VERBOSE
+            //std::cout << bitstream[cluster][pe] << "\n";
+            //#endif
         }
         out << "\n";
     }
@@ -183,6 +191,19 @@ inline void execute_on_doda_simulator(int lambda_index, const std::vector<uint32
         input_data.push_back(static_cast<int>(val));
     }
     memory_data.push_back(input_data);
+
+    #ifdef VERBOSE
+        std::cout << "memory_data:" << std::endl;
+        for (size_t i = 0; i < memory_data.size(); ++i) {
+            std::cout << "  Cluster " << i << ": [";
+            for (size_t j = 0; j < memory_data[i].size(); ++j) {
+                std::cout << memory_data[i][j];
+                if (j + 1 < memory_data[i].size()) std::cout << ", ";
+            }
+            std::cout << "]" << std::endl;
+        }
+    #endif
+
     
     // Load memory data into DODA
     simulator.loadMemoryData(memory_data);
