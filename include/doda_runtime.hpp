@@ -9,9 +9,9 @@
 #include <unistd.h>  // for access()
 #include <string>
 #include <fstream>
+#include <sstream>
 #ifndef DODA_SIMULATION_MODE
-#include <doda/dfg_parser.hpp>
-#include <doda/doda_mapper.hpp>
+#include "doda_compiler_api.h"
 #endif
 
 #ifdef DODA_SIMULATION_MODE
@@ -90,11 +90,32 @@ inline void add_metadata(const std::string& dfg_path, const RuntimeMetadata& met
 }
 
 #ifndef DODA_SIMULATION_MODE
+// Function to extract lambdas from source if needed
+inline void ensure_lambdas_extracted() {
+    static bool extraction_done = false;
+    if (extraction_done) return;
+    
+    // Check if liblambda.so already exists
+    if (access("./obj/liblambda.so", F_OK) == 0) {
+        extraction_done = true;
+        return;
+    }
+    
+    std::cerr << "Lambda extraction required but liblambda.so not found." << std::endl;
+    std::cerr << "Please run: make build_comp APP_SRC=your_file.cpp" << std::endl;
+    std::cerr << "This will automatically extract lambdas and build the shared library." << std::endl;
+    
+    // Mark as done to avoid repeated warnings
+    extraction_done = true;
+}
+
 // Dynamically loads a pre-compiled lambda in a shared library by index and returns the function pointer
 inline lambda_t load_lambda(int lambda_index, RuntimeMetadata& metadata) {
-    // Parse DFG
+    // Ensure lambda extraction has been performed
+    ensure_lambdas_extracted();
+    
+    // Setup DFG path
     std::string dfg_path = "./obj/lambda_" + std::to_string(lambda_index) + "_dfg.json";
-    auto dfg = parseDFG(dfg_path);
 
     // Load shared library
     const char* so_path = "./obj/liblambda.so";
@@ -109,29 +130,57 @@ inline lambda_t load_lambda(int lambda_index, RuntimeMetadata& metadata) {
     // Update the DFG with the run-time metadata
     add_metadata(dfg_path, metadata);
 
-    // DODA mapper augments the DFG and generates the bitstream for DODA
-    doda_mapper mapper(dfg_path);
+    // DODA compiler (shared library) augments the DFG and generates the bitstream for DODA
+    doda_compiler_handle_t compiler = doda_compiler_init();
+    assert(compiler && "Failed to initialize DODA compiler");
+    
+    doda_bitstream_t bitstream_data;
+    doda_runtime_metadata_t doda_metadata;
+    doda_result_t result = doda_compile_dfg(compiler, dfg_path.c_str(), &bitstream_data, &doda_metadata);
+    
+    if (result != DODA_SUCCESS) {
+        std::cerr << "DODA compilation failed: " << doda_get_last_error(compiler) << std::endl;
+        doda_compiler_cleanup(compiler);
+        assert(false && "DODA compilation failed");
+    }
 
-    // Generate the bitstream
+    // Convert C bitstream to C++ format for compatibility
+    std::vector<std::vector<std::string>> bitstream;
+    for (size_t i = 0; i < bitstream_data.num_clusters; ++i) {
+        std::vector<std::string> cluster_instructions;
+        std::string cluster_str(bitstream_data.cluster_data[i]);
+        
+        // Split by newlines to get individual instructions
+        std::stringstream ss(cluster_str);
+        std::string instruction;
+        while (std::getline(ss, instruction)) {
+            cluster_instructions.push_back(instruction);
+        }
+        bitstream.push_back(cluster_instructions);
+    }
+
+    // Generate the bitstream file
     std::string bitstream_path = "./obj/lambda_" + std::to_string(lambda_index) + "_bitstream.txt";
-
-    std::vector<std::vector<std::string>> bitstream = mapper.generate_bitstream();
     std::ofstream out(bitstream_path);
     
     for (int cluster = 0; cluster < bitstream.size(); cluster++) {
-        out << "#Cluster index: " << cluster << "\n";
-        //#ifdef VERBOSE
-        //std::cout << "#Cluster index: " << cluster << "\n";
-        //#endif
+        out << "# Cluster " << cluster << " bitstream\n";
         for (int pe = 0; pe < bitstream[cluster].size(); pe++) {
-            out << bitstream[cluster][pe] << "\n";
-            //#ifdef VERBOSE
-            //std::cout << bitstream[cluster][pe] << "\n";
-            //#endif
+            std::string instruction = bitstream[cluster][pe];
+            // Remove PE#: prefix if present to get raw binary string
+            size_t colon_pos = instruction.find(": ");
+            if (colon_pos != std::string::npos) {
+                instruction = instruction.substr(colon_pos + 2);
+            }
+            out << instruction << "\n";
         }
         out << "\n";
     }
     out.close();
+
+    // Clean up shared library resources
+    doda_free_bitstream(&bitstream_data);
+    doda_compiler_cleanup(compiler);
 
     return f;
 }
@@ -166,10 +215,14 @@ inline void execute_on_doda_simulator(int lambda_index, const std::vector<uint32
                 instructions.push_back(current_cluster);
                 current_cluster.clear();
             }
-        } else if (line.find("#Cluster index:") == 0) {
-            // Skip cluster header lines
+        } else if (line.find("#") == 0) {
+            // Skip all comment lines (including cluster headers and cluster bitstream comments)
             continue;
-        } else {
+        } else if (!line.empty()) {
+            // Add any non-empty, non-comment line as a binary instruction
+            #ifdef VERBOSE
+            std::cout << "Parsed instruction: length=" << line.length() << " content=" << line.substr(0, 20) << "..." << std::endl;
+            #endif
             current_cluster.push_back(line);
         }
     }

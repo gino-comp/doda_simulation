@@ -28,6 +28,10 @@ RUN apt-get update && apt-get install -y \
     numactl \
     perl-doc \
     help2man \
+    clang-14 \
+    llvm-14 \
+    llvm-14-dev \
+    libclang-14-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user for building
@@ -45,7 +49,7 @@ RUN git clone https://github.com/verilator/verilator.git && \
     git checkout v5.020 && \
     autoconf && \
     ./configure --prefix=/usr/local && \
-    make -j2
+    make -j4
 
 # Switch back to root for installation
 USER root

@@ -80,6 +80,10 @@ void DODASimulator::programInstructions(const std::vector<std::vector<std::strin
         for (int cluster = 0; cluster < 4; cluster++) {
             const std::string& bitstr = binary_instructions[cluster][inst_tab_idx];
             
+            // std::cout << "DEBUG: cluster=" << cluster << " inst_tab_idx=" << inst_tab_idx 
+            //           << " bitstr.length()=" << bitstr.length() 
+            //           << " bitstr=" << bitstr.substr(0, std::min(50, (int)bitstr.length())) << "..." << std::endl;
+            
             // Split 128-bit instruction into 4 32-bit chunks
             for (int i = 0; i < 4; i++) {
                 std::string slice = bitstr.substr(128 - (i + 1) * 32, 32);
