@@ -16,7 +16,7 @@ int main() {
     std::cout << std::endl << std::endl;
 
     // Second map_on_doda call, to check if it handles multiple calls correctly
-    map_on_doda([](uint32_t x) { return x*2; }, input, output);
+    map_on_doda([](uint32_t x) { return x+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1; }, input, output);
 
     std::cout << "\nOutput after the second map_on_doda: ";
     for (auto x : output) std::cout << x << " ";
