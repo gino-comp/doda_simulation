@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     llvm-14 \
     llvm-14-dev \
     libclang-14-dev \
+    nlohmann-json3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user for building

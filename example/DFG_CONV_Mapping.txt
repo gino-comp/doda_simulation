@@ -1,0 +1,170 @@
+
+        #input size 2x3x3, kernel 2x2x2
+
+        Mapper_Node(id: continue_condition (pe_idx: 1), op: CLT, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter (pe_index: 0), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 4
+        ])
+
+        Mapper_Node(id: terminal_condition (pe_idx: 2), op: CGTE, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter (pe_index: 0), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 4
+        ])
+
+        #counter for self incrementing load address
+
+        Mapper_Node(id: counter (pe_idx: 0), op: ADD, initial_output_used: 1, initial_output: 0, inputs: [
+                        type: i1, src_id: counter (pe_index: 0), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: counter1 (pe_idx: 3), op: ADD, initial_output_used: 1, initial_output: 4, inputs: [
+                        type: i1, src_id: counter1 (pe_index: 3), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: counter2 (pe_idx: 4), op: ADD, initial_output_used: 1, initial_output: 8, inputs: [
+                        type: i1, src_id: counter2 (pe_index: 4), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: counter3 (pe_idx: 5), op: ADD, initial_output_used: 1, initial_output: 12, inputs: [
+                        type: i1, src_id: counter3 (pe_index: 5), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+
+        Mapper_Node(id: counter4 (pe_idx: 6), op: ADD, initial_output_used: 1, initial_output: 16, inputs: [
+                        type: i1, src_id: counter4 (pe_index: 6), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: counter5 (pe_idx: 7), op: ADD, initial_output_used: 1, initial_output: 20, inputs: [
+                        type: i1, src_id: counter5 (pe_index: 7), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: counter6 (pe_idx: 8), op: ADD, initial_output_used: 1, initial_output: 24, inputs: [
+                        type: i1, src_id: counter6 (pe_index: 8), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: counter7 (pe_idx: 9), op: ADD, initial_output_used: 1, initial_output: 28, inputs: [
+                        type: i1, src_id: counter7 (pe_index: 9), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        #loaders
+        Mapper_Node(id: %10 (pe_idx: 10), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter (pe_index: 0), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+
+        Mapper_Node(id: %11 (pe_idx: 11), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter1 (pe_index: 1), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+        Mapper_Node(id: %12 (pe_idx: 12), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter2 (pe_index: 2), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+        Mapper_Node(id: %13 (pe_idx: 13), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter3 (pe_index: 3), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+
+        Mapper_Node(id: %14 (pe_idx: 14), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter4 (pe_index: 4), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+
+        Mapper_Node(id: %15 (pe_idx: 15), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter5 (pe_index: 5), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+        Mapper_Node(id: %16 (pe_idx: 16), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter6 (pe_index: 6), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+        Mapper_Node(id: %17 (pe_idx: 17), op: LOAD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter7 (pe_index: 7), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+
+        #mults
+        Mapper_Node(id: %18 (pe_idx: 18), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %10 (pe_index: 10), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: %19 (pe_idx: 19), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %11 (pe_index: 11), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 2
+        ])
+        Mapper_Node(id: %20 (pe_idx: 20), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %12 (pe_index: 12), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 3
+        ])
+        Mapper_Node(id: %21 (pe_idx: 21), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %13 (pe_index: 13), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 4
+        ])
+
+        Mapper_Node(id: %22 (pe_idx: 22), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %14 (pe_index: 14), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 1
+        ])
+
+        Mapper_Node(id: %23 (pe_idx: 23), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %15 (pe_index: 15), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 2
+        ])
+        Mapper_Node(id: %24 (pe_idx: 24), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %16 (pe_index: 16), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 3
+        ])
+        Mapper_Node(id: %25 (pe_idx: 25), op: MUL, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %17 (pe_index: 17), const_value: -1
+                        type: i2, src_id: const (pe_index: -1), const_value: 4
+        ])
+
+        #adders
+        Mapper_Node(id: %26 (pe_idx: 26), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %18 (pe_index: 18), const_value: -1
+                        type: i2, src_id: %19 (pe_index: 19), const_value: -1
+        ])
+        Mapper_Node(id: %27 (pe_idx: 27), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %20 (pe_index: 20), const_value: -1
+                        type: i2, src_id: %21 (pe_index: 21), const_value: -1
+        ])
+        Mapper_Node(id: %28 (pe_idx: 28), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %26 (pe_index: 26), const_value: -1
+                        type: i2, src_id: %27 (pe_index: 27), const_value: -1
+        ])
+
+        Mapper_Node(id: %29 (pe_idx: 29), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %22 (pe_index: 22), const_value: -1
+                        type: i2, src_id: %23 (pe_index: 23), const_value: -1
+        ])
+        Mapper_Node(id: %30 (pe_idx: 30), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %24 (pe_index: 24), const_value: -1
+                        type: i2, src_id: %25 (pe_index: 25), const_value: -1
+        ])
+        Mapper_Node(id: %31 (pe_idx: 31), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %29 (pe_index: 29), const_value: -1
+                        type: i2, src_id: %30 (pe_index: 30), const_value: -1
+        ])
+        Mapper_Node(id: %32 (pe_idx: 32), op: ADD, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: %31 (pe_index: 31), const_value: -1
+                        type: i2, src_id: %28 (pe_index: 28), const_value: -1
+        ])
+        Mapper_Node(id: store_output (pe_idx:33 ), op: STORE, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: counter (pe_index:0), const_value: -1
+                        type: i2, src_id: %32 (pe_index: 32), const_value: -1
+                        type: pred, src_id: continue_condition (pe_index: 1), const_value: -1
+        ])
+        Mapper_Node(id: terminal (pe_idx: 34), op: JUMP, initial_output_used: 0, initial_output: -1, inputs: [
+                        type: i1, src_id: const (pe_index: -1), const_value: 100
+                        type: i2, src_id: store_output (pe_index: 33), const_value: -1
+                        type: pred, src_id: terminal_condition (pe_index: 2), const_value: -1
+        ])
