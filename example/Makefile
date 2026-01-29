@@ -56,7 +56,7 @@ obj/run_bitstream: run_bitstream.cpp
 
 # Run simulation directly with a bitstream file
 # Usage: make run-bitstream BITSTREAM=<file.txt> [INPUT_DATA=<data.txt>]
-BITSTREAM ?= obj/DFG_CONV_Mapping_bitstream.txt
+BITSTREAM ?= obj/DFG_CONV_Mapping.txt
 INPUT_DATA ?= input_data_mem.txt
 run-bitstream: obj/run_bitstream
 	@echo "→ Running simulation with bitstream: $(BITSTREAM)"
