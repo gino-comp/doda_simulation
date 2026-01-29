@@ -1,133 +1,64 @@
-# DODA: Dynamically Orchestrated Dataflow Architecture
+# DODA Simulation
 
-Welcome to the **Dynamically Orchestrated Dataflow Architecture (DODA)** simulation framework! This repository provides a complete development environment for experimenting with dataflow-based computing, featuring automatic compilation from C++ lambda functions to DODA bitstreams and cycle-accurate simulation.
-
-## 🎉 Integration Status: COMPLETE
-
-✅ **Full End-to-End Pipeline Working**
-- Lambda extraction from C++ source
-- DFG (Dataflow Graph) generation from LLVM IR  
-- Real bitstream generation with actual hardware instructions
-- Cycle-accurate Verilator-based hardware simulation
-- Both compilation and simulation modes produce identical results
-
-## Project Structure
-
-```
-doda_simulation/
-├── lib/                     # Shared libraries (FIXED with real mapper)
-│   ├── DODA.so              # Verilator simulation library
-│   ├── libdoda_c_api.so     # DODA C API (now with real bitstream generation)
-│   ├── libdoda_mapper.so    # Real mapper implementation
-│   ├── libdoda_core.so      # Core utilities
-│   └── libExtractLambdaPlugin.so # Lambda extraction plugin
-├── example/                 # Example applications
-│   ├── map_on_doda_example.cpp  # Main test application
-│   └── obj/                 # Generated files (DFGs, bitstreams, libraries)
-├── include/                 # Simulation framework headers
-│   ├── doda_runtime.hpp     # Main runtime interface (FIXED bitstream parsing)
-│   ├── doda_simulator.hpp   # Verilator-based simulator
-│   └── doda_compiler_api.h  # C API header
-├── src/                     # Simulation framework source
-│   ├── doda_simulator.cpp   # Simulator implementation
-│   └── mapper.cpp           # Mapper utilities
-└── docker/                  # Docker build environment
-```
-
-## What's Inside
-
-- **DODA Compiler**: Automatically compiles C++ lambda functions to dataflow graphs and generates **real hardware bitstreams** (FIXED)
-- **Runtime System**: High-level `map_on_doda()` API with dual-mode execution
-- **Cycle-Accurate Simulator**: Verilator-based simulation that executes actual bitstreams
-- **Complete Integration**: End-to-end pipeline from C++ lambda to hardware simulation
-
-## Key Features
-
-- **Lambda-to-Hardware**: Write C++ lambda functions that execute on DODA hardware
-- **Real Bitstream Generation**: DODA compiler now generates actual hardware instructions (not dummy zeros)
-- **Dual Mode Operation**: 
-  - **Compilation Mode** (`make run`): Generates DFGs, bitstreams, and executes on CPU
-  - **Simulation Mode** (`make simulate`): Executes on cycle-accurate Verilator DODA model
-- **Verified Results**: Both modes produce identical, correct outputs
-- **Docker-Based Build**: Consistent LLVM/Clang environment across platforms
+Cycle-accurate simulator for **Dynamically Orchestrated Dataflow Architecture (DODA)**.
 
 ## Quick Start
 
-### Prerequisites
-- Docker or Podman
-- Make
-
-### Setup
 ```bash
-# Clone repository
-git clone <repository-url>
-cd doda_simulation
-
 # Build Docker environment
 make docker-build
-```
 
-### Running Examples
-```bash
-# Navigate to example directory
 cd example
-
-# Compile and run on host CPU (generates real bitstreams)
-make run
-# Expected output:
-# Output after the first map_on_doda: 1 0 1 0 1 0 
-# Output after the second map_on_doda: 2 0 2 0 4 0
-
-# Compile and simulate on DODA hardware (cycle-accurate)
-make simulate
-# Expected output: Same as compilation mode - proves integration works!
 ```
 
-## Usage
+## Two Ways to Run
 
-The DODA runtime provides a simple API for executing lambda functions:
+### 1. C++ Lambda Pipeline
+
+Write C++ lambdas that compile to DODA bitstreams:
 
 ```cpp
 #include <doda_runtime.hpp>
 
-std::vector<uint32_t> input{1, 2, 3, 4, 5};
-std::vector<uint32_t> output(5);
+std::vector<uint32_t> input{1, 2, 3, 4};
+std::vector<uint32_t> output(4);
 
-// Execute lambda on DODA
-map_on_doda([](uint32_t x) { 
-    return x >= 1 ? uint32_t(1) : uint32_t(0); 
-}, input, output);
+map_on_doda([](uint32_t x) { return x * 2; }, input, output);
 ```
+
+```bash
+make run       # Generate bitstream and run on CPU (required first)
+make simulate  # Run on DODA simulator
+```
+
+### 2. Custom Dataflow Graph
+
+Write your own dataflow graph in text format and simulate directly:
+
+```bash
+# Convert DFG txt to bitstream and simulate (no prior setup needed)
+make simulate-txt
+
+# Or with custom inputs:
+make simulate-txt INPUT_DFG_TXT=my_graph.txt INPUT_DATA=my_data.txt
+```
+
+See `example/DFG_CONV_Mapping.txt` for graph format and `example/input_data_mem.txt` for input data format.
 
 ## Build Targets
 
-- `make run` - Build and run compilation mode (CPU execution + bitstream generation)
-- `make simulate` - Build and run simulation mode (Verilator hardware simulation)
-- `make build_comp APP_SRC=<file>` - Build compilation executable for custom source
-- `make build_sim APP_SRC=<file>` - Build simulation executable for custom source
-- `make docker-build` - Build Docker environment
-- `make clean` - Clean build artifacts
+### Root Makefile
 
-## Recent Fixes (Integration Complete)
+| Target | Description |
+|--------|-------------|
+| `make docker-build` | Build Docker environment |
+| `make clean` | Clean build artifacts |
 
-### 🔧 **Critical Issue Resolved**: 
-The DODA compiler's C API was using a dummy implementation that generated all-zero bitstreams instead of real hardware instructions.
+### example/Makefile
 
-### ✅ **Fix Applied**:
-- Updated `doda_compiler/CMakeLists.txt` to use proper template (`doda_c_api.cpp.in` instead of `doda_c_api_standalone_complete.cpp.in`)
-- Now uses real `doda_mapper` to generate actual hardware bitstreams
-- Updated simulator libraries with fixed implementation
-
-### 🎯 **Result**:
-Both compilation and simulation modes now produce identical, correct results, proving the complete integration pipeline works end-to-end.
-
-## Architecture Support
-
-Currently supports x86_64 architecture.
-
-## Development
-
-For detailed development information, see:
-- `include/doda_compiler_api.h` - Compiler API documentation
-- `example/` - Usage examples
-- `include/` - Runtime API documentation 
+| Target | Description |
+|--------|-------------|
+| `make run` | Generate bitstream and run on CPU |
+| `make simulate` | Run on DODA simulator (requires `make run` first) |
+| `make simulate-txt` | Convert custom DFG and simulate |
+| `make clean` | Clean example build artifacts |
