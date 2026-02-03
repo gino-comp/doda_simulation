@@ -3,7 +3,7 @@ ROOT_DIR = $(PWD)/..
 
 # Docker configuration for running apps
 CONTAINER_ENGINE := $(shell which podman >/dev/null 2>&1 && echo "podman" || echo "docker")
-DOCKER_RUN = $(CONTAINER_ENGINE) run --rm \
+DOCKER_RUN = $(CONTAINER_ENGINE) run --rm -it \
 	-v $(PWD)/..:/workspace \
 	-w /workspace/example \
 	encrypted-verilator:latest \

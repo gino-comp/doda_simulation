@@ -1,11 +1,12 @@
-// Standalone DODA simulator driver
-// Usage: ./run_bitstream <bitstream.txt> [input_data.txt]
+// Standalone DODA simulator driver with interactive memory updates
+// Usage: ./run_bitstream <bitstream.txt>
 //
-// Input data format (one value per line):
-//   1
-//   2
-//   3
-//   ...
+// Commands:
+//   run                  - Execute simulation with current memory
+//   set <c> <i> <v>      - Set memory[cluster][index] = value
+//   show                 - Display current memory contents
+//   reset                - Reset simulator
+//   quit                 - Exit program
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +15,15 @@
 #include <string>
 #include <cstdint>
 #include "doda_simulator.hpp"
+
+// Static initial memory data - 2D vector [cluster][index]
+// Modify these values as needed for your test cases
+static std::vector<std::vector<int>> g_memory_data = {
+    {1, 2, 3, 4, 5, 6, 7, 8},  // Cluster 0
+    {0, 0, 0, 0, 0, 0, 0, 0},  // Cluster 1
+    {0, 0, 0, 0, 0, 0, 0, 0},  // Cluster 2
+    {0, 0, 0, 0, 0, 0, 0, 0}   // Cluster 3
+};
 
 std::vector<std::vector<std::string>> load_bitstream(const std::string& path) {
     std::vector<std::vector<std::string>> instructions;
@@ -34,7 +44,6 @@ std::vector<std::vector<std::string>> load_bitstream(const std::string& path) {
                 current_cluster.clear();
             }
         } else if (line[0] == '#') {
-            // Skip comment lines
             continue;
         } else {
             current_cluster.push_back(line);
@@ -48,29 +57,30 @@ std::vector<std::vector<std::string>> load_bitstream(const std::string& path) {
     return instructions;
 }
 
-std::vector<uint32_t> load_input_data(const std::string& path) {
-    std::vector<uint32_t> data;
-    std::ifstream file(path);
-
-    if (!file.is_open()) {
-        std::cerr << "Error: Cannot open input data file: " << path << std::endl;
-        return data;
+void print_memory(const std::vector<std::vector<int>>& mem) {
+    for (size_t c = 0; c < mem.size(); ++c) {
+        std::cout << "Cluster " << c << ": [";
+        for (size_t i = 0; i < mem[c].size(); ++i) {
+            std::cout << mem[c][i];
+            if (i + 1 < mem[c].size()) std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
     }
+}
 
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line.empty() || line[0] == '#') continue;
-        data.push_back(static_cast<uint32_t>(std::stoul(line)));
-    }
-
-    return data;
+void print_help() {
+    std::cout << "\nCommands:\n"
+              << "  run                  - Execute simulation with current memory\n"
+              << "  set <c> <i> <v>      - Set memory[cluster][index] = value\n"
+              << "  show                 - Display current memory contents\n"
+              << "  reset                - Reset simulator\n"
+              << "  help                 - Show this help\n"
+              << "  quit                 - Exit program\n" << std::endl;
 }
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <bitstream.txt> [input_data.txt]" << std::endl;
-        std::cerr << std::endl;
-        std::cerr << "If no input_data.txt is provided, uses default test data [1, 2, 3, 4]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <bitstream.txt>" << std::endl;
         return 1;
     }
 
@@ -90,23 +100,6 @@ int main(int argc, char* argv[]) {
         std::cout << "  Cluster " << i << ": " << instructions[i].size() << " instructions" << std::endl;
     }
 
-    // Load or generate input data
-    std::vector<uint32_t> input_data;
-    if (argc >= 3) {
-        std::cout << "Loading input data from: " << argv[2] << std::endl;
-        input_data = load_input_data(argv[2]);
-    } else {
-        std::cout << "Using default test data: [1, 2, 3, 4]" << std::endl;
-        input_data = {1, 2, 3, 4};
-    }
-
-    std::cout << "Input data (" << input_data.size() << " elements): [";
-    for (size_t i = 0; i < input_data.size(); ++i) {
-        std::cout << input_data[i];
-        if (i + 1 < input_data.size()) std::cout << ", ";
-    }
-    std::cout << "]" << std::endl;
-
     // Initialize simulator
     std::cout << "\nInitializing DODA simulator..." << std::endl;
     DODASimulator simulator;
@@ -116,35 +109,63 @@ int main(int argc, char* argv[]) {
     std::cout << "Programming instructions..." << std::endl;
     simulator.programInstructions(instructions);
 
-    // Load memory data
-    std::vector<std::vector<int>> memory_data;
-    std::vector<int> cluster0_data;
-    for (uint32_t val : input_data) {
-        cluster0_data.push_back(static_cast<int>(val));
-    }
-    memory_data.push_back(cluster0_data);
+    std::cout << "\nStatic initial memory:" << std::endl;
+    print_memory(g_memory_data);
+    print_help();
 
-    std::cout << "Loading memory data..." << std::endl;
-    simulator.loadMemoryData(memory_data);
+    // Interactive loop
+    std::string line;
+    while (true) {
+        std::cout << "> ";
+        if (!std::getline(std::cin, line)) break;
 
-    // Run simulation
-    std::cout << "Starting execution..." << std::endl;
-    simulator.startExecution();
-    simulator.waitForCompletion();
+        std::istringstream iss(line);
+        std::string cmd;
+        iss >> cmd;
 
-    // Read results
-    std::cout << "\nReading results..." << std::endl;
-    auto result_memory = simulator.readMemory();
+        if (cmd == "quit" || cmd == "q" || cmd == "exit") {
+            break;
+        } else if (cmd == "help" || cmd == "h" || cmd == "?") {
+            print_help();
+        } else if (cmd == "show" || cmd == "s") {
+            print_memory(g_memory_data);
+        } else if (cmd == "set") {
+            int cluster, index, value;
+            if (iss >> cluster >> index >> value) {
+                if (cluster >= 0 && cluster < static_cast<int>(g_memory_data.size()) &&
+                    index >= 0 && index < static_cast<int>(g_memory_data[cluster].size())) {
+                    g_memory_data[cluster][index] = value;
+                    std::cout << "Set memory[" << cluster << "][" << index << "] = " << value << std::endl;
+                } else {
+                    std::cerr << "Error: Index out of range" << std::endl;
+                }
+            } else {
+                std::cerr << "Usage: set <cluster> <index> <value>" << std::endl;
+            }
+        } else if (cmd == "reset") {
+            simulator.reset();
+            simulator.initialize();
+            simulator.programInstructions(instructions);
+            std::cout << "Simulator reset and reprogrammed." << std::endl;
+        } else if (cmd == "run" || cmd == "r") {
+            std::cout << "Loading memory..." << std::endl;
+            simulator.loadMemoryData(g_memory_data);
 
-    if (!result_memory.empty()) {
-        std::cout << "Output data (" << result_memory[0].size() << " elements): [";
-        for (size_t i = 0; i < result_memory[0].size() && i < input_data.size(); ++i) {
-            std::cout << result_memory[0][i];
-            if (i + 1 < result_memory[0].size() && i + 1 < input_data.size()) std::cout << ", ";
+            std::cout << "Starting execution..." << std::endl;
+            simulator.startExecution();
+            simulator.waitForCompletion();
+
+            // Read results and copy to g_memory_data for next iteration
+            auto result_memory = simulator.readMemory();
+            g_memory_data = result_memory;
+            std::cout << "\nOutput:" << std::endl;
+            print_memory(g_memory_data);
+            print_help();
+        } else if (!cmd.empty()) {
+            std::cerr << "Unknown command: " << cmd << ". Type 'help' for commands." << std::endl;
         }
-        std::cout << "]" << std::endl;
     }
 
-    std::cout << "\nSimulation complete." << std::endl;
+    std::cout << "Goodbye." << std::endl;
     return 0;
 }
