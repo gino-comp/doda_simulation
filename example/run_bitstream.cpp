@@ -1,5 +1,5 @@
 // Standalone DODA simulator driver with interactive memory updates
-// Usage: ./run_bitstream <bitstream.txt>
+// Usage: ./run_bitstream <bitstream.txt> [input_data_mem.txt]
 //
 // Commands:
 //   run                  - Execute simulation with current memory
@@ -19,11 +19,39 @@
 // Static initial memory data - 2D vector [cluster][index]
 // Modify these values as needed for your test cases
 static std::vector<std::vector<int>> g_memory_data = {
-    {1, 2, 3, 4, 5, 6, 7, 8},  // Cluster 0
+    {0, 0, 0, 0, 0, 0, 0, 0},  // Cluster 0
     {0, 0, 0, 0, 0, 0, 0, 0},  // Cluster 1
     {0, 0, 0, 0, 0, 0, 0, 0},  // Cluster 2
     {0, 0, 0, 0, 0, 0, 0, 0}   // Cluster 3
 };
+
+std::vector<int> load_input_data(const std::string& path) {
+    std::vector<int> values;
+    std::ifstream file(path);
+
+    if (!file.is_open()) {
+        std::cerr << "Warning: Cannot open input data file: " << path << std::endl;
+        return values;
+    }
+
+    std::string line;
+    int value = 0;
+    while (std::getline(file, line)) {
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        std::istringstream iss(line);
+        if (!(iss >> value)) {
+            std::cerr << "Warning: Skipping invalid input data line: " << line << std::endl;
+            continue;
+        }
+
+        values.push_back(value);
+    }
+
+    return values;
+}
 
 std::vector<std::vector<std::string>> load_bitstream(const std::string& path) {
     std::vector<std::vector<std::string>> instructions;
@@ -80,11 +108,21 @@ void print_help() {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <bitstream.txt>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <bitstream.txt> [input_data_mem.txt]" << std::endl;
         return 1;
     }
 
     std::string bitstream_path = argv[1];
+    std::string input_data_path = (argc >= 3) ? argv[2] : "input_data_mem.txt";
+
+    std::cout << "Loading input data from: " << input_data_path << std::endl;
+    auto input_values = load_input_data(input_data_path);
+    if (!input_values.empty()) {
+        g_memory_data[0] = input_values;
+        std::cout << "Loaded " << input_values.size() << " value(s) into cluster 0" << std::endl;
+    } else {
+        std::cout << "Using existing default g_memory_data" << std::endl;
+    }
 
     // Load bitstream
     std::cout << "Loading bitstream from: " << bitstream_path << std::endl;
